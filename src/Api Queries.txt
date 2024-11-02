@@ -1,0 +1,10 @@
+
+
+
+Get a site
+GET https://graph.microsoft.com/v1.0/sites/salarsheriff.sharepoint.com:/sites/CCQPlusTeamsSharepoint
+
+
+
+Get all the lists in a site
+https://graph.microsoft.com/v1.0/sites/salarsheriff.sharepoint.com:/sites/CCQPlusTeamsSharepoint:/lists
