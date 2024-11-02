@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 
 import {Client} from '@microsoft/microsoft-graph-client';
 import * as microsoftTeams from '@microsoft/teams-js';
-import { extractFieldsFromLogs, getFilteredLogs } from '../backend.js';
+import { extractFieldsFromLogs, getFilteredLogs, uploadLog } from '../backend.js';
 
 
 
@@ -24,7 +24,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 //The page that displays the actual CCQ view
 
 
-function CCQPage({accessToken, useData}) {
+function CCQPage({accessToken, userData}) {
  
   
  
@@ -53,7 +53,7 @@ function CCQPage({accessToken, useData}) {
 
   const { companyName } = useParams();
   let [logs, setLogs] = useState(dummyLogs);
-
+  let [dataUpdateTrigger, setDataUpdateTrigger] = useState(0); //Used to trigger a data update
   
   //State for managing presence patrol timer
   const [patrolTimer, setPatrolTimer] = useState(0);
@@ -97,7 +97,7 @@ function CCQPage({accessToken, useData}) {
     }
     fetchData().then(() => { setDataLoaded(true) });
     //setInterval(fetchData, dataFetchRate);
-  }, [])
+  }, [dataUpdateTrigger])
 
 
   //Manage the patrol timer
@@ -135,6 +135,9 @@ function CCQPage({accessToken, useData}) {
 
     if (dialogueTitle === "Sign Out") {
 
+//upload log
+uploadLog(accessToken, "signOut"+userData.username + Math.floor(Math.random() * 10000000) + 1, dayjs().format("MM/DD/YY"), dayjs().format("HHmm"), userData.username, userData.username + " signed out", "relieved", companyName, "n/a");
+
       setDialogueOpen(false);
       navigate("/");
 
@@ -165,7 +168,10 @@ function CCQPage({accessToken, useData}) {
       setDialogueOpen(false)
 
 
-
+      let randomLogName = "patrol"+userData.username + Math.floor(Math.random() * 10000000) + 1;
+      //upload log
+      uploadLog(accessToken, randomLogName, dayjs().format("MM/DD/YY"), dayjs().format("HHmm"), userData.username, userData.username + " conducted a presence patrol for " + patrolTimer + " seconds. \nComments: " + patrolComments , "patrol", companyName, "n/a");
+      setDataUpdateTrigger(dataUpdateTrigger + 1);
 
       //Reset timer
       setPatrolTimer(0);
@@ -173,7 +179,9 @@ function CCQPage({accessToken, useData}) {
     else if (dialogueTitle === "Special Message") {
 
 
-
+      //upload log
+      uploadLog(accessToken, "specialMessage"+userData.username + Math.floor(Math.random() * 10000000) + 1, dayjs().format("MM/DD/YY"), dayjs().format("HHmm"), userData.username, userData.username + " sent a special message: " + specialMessageComments, "specialMessage", companyName, "n/a");
+      setDataUpdateTrigger(dataUpdateTrigger + 1);
       setDialogueOpen(false);
       setSpecialMessageComments("");
     }
