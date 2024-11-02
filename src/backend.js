@@ -277,6 +277,32 @@ async function loginAndGetToken() {
     }
 }
 
+// Function to get user data from Microsoft Graph API
+async function getUserDataFromGraph(accessToken) {
+    const graphClient = Client.init({
+        authProvider: (done) => {
+            done(null, accessToken); // Pass the token directly
+        },
+    });
+
+    try {
+        // Call the Graph API to get the current user's profile
+        const user = await graphClient.api("/me").get();
+
+        // Return the relevant user data
+        return {
+            username: user.displayName || user.userPrincipalName || "", // Use displayName or fallback to userPrincipalName
+            email: user.mail || user.userPrincipalName || ""            // Use mail or fallback to userPrincipalName
+        };
+    } catch (error) {
+        console.error("Error retrieving user data:", error.message);
+        return null; // Return null if there's an error
+    }
+}
+
+
+
+
 // Function to get the SharePoint site
 async function getSharePointSiteInformation(accessToken) {
 
@@ -344,6 +370,8 @@ async function getAllLogs(accessToken) {
 
 // New function to get filtered logs based on action, company, and date range
 //If action is "all" then it will just give all types of logs
+
+//ex.  getFilteredLogs(accessToken, "all", "I1", "11/29/24", "11/30/24")
 async function getFilteredLogs(accessToken, action, company, startDate, endDate) {
     // Call the getAllLogs function to get all log items
     const allLogs = await getAllLogs(accessToken);
@@ -370,8 +398,76 @@ async function getFilteredLogs(accessToken, action, company, startDate, endDate)
 }
 
 
+// Function to extract fields from logs
+function extractFieldsFromLogs(logs) {
+    return logs.map(log => ({
+        id: log.fields.id,
+        title: log.fields.Title,
+        date: log.fields.date,
+        time: log.fields.time,
+        name: log.fields.name,
+        message: log.fields.message,
+        action: log.fields.action,
+        company: log.fields.company,
+        timeOut: log.fields.timeOut,
+        createdDateTime: log.createdDateTime,
+        modifiedDateTime: log.lastModifiedDateTime,
+        webUrl: log.webUrl
+    }));
+}
 
 
+// Function to create a new log entry in the "Log" list with individual parameters
+async function uploadLog(accessToken, title, date, time, name, message, action, company, timeOut) {
+    const graphClient = Client.init({
+        authProvider: (done) => {
+            done(null, accessToken); // Pass the token directly
+        },
+    });
+
+    const hostname = SHAREPOINT_HOST_NAME;
+    const sitePath = SHAREPOINT_SITE_PATH;
+
+    try {
+        // Step 1: Get the site information
+        const site = await graphClient
+            .api(`/sites/${hostname}:${sitePath}`)
+            .get();
+
+        console.log("Site ID:", site.id);
+
+        // Step 2: Get the "Log" list by name
+        const listName = "Log";
+        const list = await graphClient
+            .api(`/sites/${site.id}/lists/${listName}`)
+            .get();
+
+        console.log("List ID:", list.id);
+
+        // Step 3: Create a new item in the "Log" list
+        const newLog = {
+            fields: {
+                Title: title,
+                date: date,          // Format: MM/DD/YY or YYYY-MM-DD
+                time: time,           // Format: HHMM
+                name: name,
+                message: message,
+                action: action,
+                company: company,
+                timeOut: timeOut      // Default to "n/a" if not provided
+            }
+        };
+
+        const createdItem = await graphClient
+            .api(`/sites/${site.id}/lists/${list.id}/items`)
+            .post(newLog);
+
+        console.log("Created Log Item:", createdItem);
+        return createdItem; // Returns the newly created log item
+    } catch (error) {
+        console.error("Error creating log:", error.message);
+    }
+}
 
 
-export { regiments, loginAndGetToken, getSharePointSiteInformation,getAllLogs,getFilteredLogs };
+export { regiments, loginAndGetToken,getUserDataFromGraph, getSharePointSiteInformation,getAllLogs,getFilteredLogs, extractFieldsFromLogs, uploadLog };

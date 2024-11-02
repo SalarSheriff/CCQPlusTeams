@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 
 import {Client} from '@microsoft/microsoft-graph-client';
 import * as microsoftTeams from '@microsoft/teams-js';
+import { extractFieldsFromLogs, getFilteredLogs } from '../backend.js';
 
 
 
@@ -23,7 +24,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 //The page that displays the actual CCQ view
 
 
-function CCQPage() {
+function CCQPage({accessToken, useData}) {
  
   
  
@@ -89,9 +90,10 @@ function CCQPage() {
     //initial load
     async function fetchData() {
 
-
-      //let data = await getLogsInRange(instance, accounts, companyName, dayjs().format('YYYYMMDD'), dayjs().add(1, "day").format("YYYYMMDD")); //only load current day's logs
-      //setLogs(data);
+      let data = await getFilteredLogs(accessToken, "all", companyName, dayjs().format("MM/DD/YY"), dayjs().format("MM/DD/YY"))
+      
+      
+      setLogs(extractFieldsFromLogs(data));
     }
     fetchData().then(() => { setDataLoaded(true) });
     //setInterval(fetchData, dataFetchRate);

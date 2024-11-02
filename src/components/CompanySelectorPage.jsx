@@ -3,8 +3,9 @@ import CompanyDisplayPaper from "./CompanyDisplayPaper";
 import Grid from '@mui/material/Grid2';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import dayjs from 'dayjs';
 
-import { getAllLogs, getFilteredLogs, getSharePointSiteInformation, regiments } from '../backend.js';
+import { getAllLogs, getFilteredLogs, getSharePointSiteInformation, getUserDataFromGraph, regiments, uploadLog } from '../backend.js';
 import * as microsoftTeams from "@microsoft/teams-js";
 import { Client } from '@microsoft/microsoft-graph-client';
 import { TeamsUserCredential } from "@microsoft/teamsfx";
@@ -15,15 +16,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function CompanySelectorPage({accessToken}) {
+function CompanySelectorPage({accessToken, userData} ) {
    
     const navigate = useNavigate();
     const [selectedCompany, setSelectedCompany] = useState(null);
     const [confirmationDialogueOpen, setConfirmationDialogueOpen] = useState(false);
 
+   
 
-
-    getFilteredLogs(accessToken, "all", "I1", "11/29/24", "11/30/24")
+    
 
 
     function handleSelectCompany(company) {
@@ -33,8 +34,14 @@ function CompanySelectorPage({accessToken}) {
 
     const handleConfirmationDialogueClose = () => setConfirmationDialogueOpen(false);
 
-    const handleConfirmationDialogueAccept = () => {
+    const handleConfirmationDialogueAccept =  () => {
         alert("Uploading a log to API");
+
+        
+
+        const randomLogNumber = Math.floor(Math.random() * 10000000) + 1;
+      
+        uploadLog(accessToken, "New_Log: " + randomLogNumber, dayjs().format("MM/DD/YY"), dayjs().format("HHmm"), userData.username, userData.username + " assumes the CCQ", "assumes", selectedCompany, "n/a");
         navigate("/ccq/" + selectedCompany);
     };
 

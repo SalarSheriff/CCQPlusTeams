@@ -9,21 +9,23 @@ import CCQPlusAppBar from './CCQPlusAppBar';
 
 import CCQPage from './CCQPage';
 import{Box} from '@mui/material'
-import { loginAndGetToken } from '../backend.js';
+import { getUserDataFromGraph, loginAndGetToken } from '../backend.js';
 
 function App() {
 
 
 //Stores the access token of the user
   const [accessToken, setAccessToken] = useState(null);
-
+  const [userData, setUserData] = useState(null);
 
 
   useEffect(()=> {
 
     async function runLogin() {
-      setAccessToken(await loginAndGetToken());
-      console.log("access Token: " + accessToken);
+      let token = await loginAndGetToken(); //temp variable because we need to access it immediately after and state does not update immediately
+      setAccessToken(token);
+      setUserData(await getUserDataFromGraph(token));
+      console.log("access Token: " + token);
     }
 
     runLogin();
@@ -41,7 +43,7 @@ function App() {
           <Route path="/tab" element={
             <>
               <CCQPlusAppBar />
-              <CompanySelectorPage accessToken={accessToken} />
+              <CompanySelectorPage accessToken={accessToken} userData={userData} />
             </>
           } />
           <Route path='/ccq/:companyName' element={
@@ -57,7 +59,7 @@ function App() {
                 <Box sx={{
                   overflow: 'auto',
                 }}>
-                  <CCQPage />
+                  <CCQPage accessToken={accessToken} userData={userData}/>
                 </Box>
               </Box>
             </>
