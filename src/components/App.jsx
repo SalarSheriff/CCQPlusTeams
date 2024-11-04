@@ -64,6 +64,14 @@ function App() {
               </Box>
             </>
           } />
+
+          <Route path='/adminview' element= {
+
+
+          <>
+            <h1>Hello World Admin</h1>
+          </>
+          }/>
         </Routes>
       </Router>
     ) : null

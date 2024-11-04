@@ -35,7 +35,7 @@ function CompanySelectorPage({accessToken, userData} ) {
     const handleConfirmationDialogueClose = () => setConfirmationDialogueOpen(false);
 
     const handleConfirmationDialogueAccept =  () => {
-        alert("Uploading a log to API");
+        
 
         
 
@@ -61,7 +61,7 @@ function CompanySelectorPage({accessToken, userData} ) {
                     <DialogTitle>Sign Into the {selectedCompany} CCQ</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-slide-description">
-                            Confirm signing into the {selectedCompany} CCQ as {"usr"}({"user.email"}).
+                            Confirm signing into the {selectedCompany} CCQ as {userData.username}({userData.email}).
                             <br />
                             False Logs are subject to the USMA Honor Code
                         </DialogContentText>
