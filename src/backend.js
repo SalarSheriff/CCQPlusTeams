@@ -303,6 +303,59 @@ async function getUserDataFromGraph(accessToken) {
 
 
 
+//check if the user is an admin
+async function getListOfAdmins(accessToken) {
+    const graphClient = Client.init({
+        authProvider: (done) => {
+            done(null, accessToken); // Pass the token directly
+        },
+    });
+
+    const hostname = SHAREPOINT_HOST_NAME;
+    const sitePath = SHAREPOINT_SITE_PATH;
+
+    try {
+        // Step 1: Get the site information
+        const site = await graphClient
+            .api(`/sites/${hostname}:${sitePath}`)
+            .get();
+
+        console.log("Site ID:", site.id);
+
+        // Step 2: Use the site ID to get the "Log" list
+        const listName = "AuthorizedAdmins";
+        const list = await graphClient
+            .api(`/sites/${site.id}/lists/${listName}`)
+            .get();
+
+        console.log("List ID:", list.id);
+
+        // Step 3: Retrieve all items in the "Log" list
+        const items = await graphClient
+            .api(`/sites/${site.id}/lists/${list.id}/items`)
+            .expand("fields") // Expand fields to get field values
+            .get();
+
+        console.log("Admin Accounts:", items.value);
+        return items.value; // Returns an array of log items
+    } catch (error) {
+        console.error("Error getting log items:", error.message);
+    }
+}
+
+async function isAdmin(accessToken) {
+    let admins = await getListOfAdmins(accessToken);
+    let userData = await getUserDataFromGraph(accessToken);
+    let user = userData.email;
+    let admin = false;
+    admins.forEach(element => {
+        if (element.fields.email === user) {
+            admin = true;
+        }
+    });
+    return admin;
+}
+
 // Function to get the SharePoint site
 async function getSharePointSiteInformation(accessToken) {
 
@@ -470,4 +523,4 @@ async function uploadLog(accessToken, title, date, time, name, message, action, 
 }
 
 
-export { regiments, loginAndGetToken,getUserDataFromGraph, getSharePointSiteInformation,getAllLogs,getFilteredLogs, extractFieldsFromLogs, uploadLog };
+export { regiments, loginAndGetToken,getUserDataFromGraph, getSharePointSiteInformation,getAllLogs,getFilteredLogs, extractFieldsFromLogs, uploadLog, getListOfAdmins, isAdmin };

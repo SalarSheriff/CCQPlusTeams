@@ -10,6 +10,10 @@ import CCQPlusAppBar from './CCQPlusAppBar';
 import CCQPage from './CCQPage';
 import{Box} from '@mui/material'
 import { getUserDataFromGraph, loginAndGetToken } from '../backend.js';
+import AdminPage from './AdminPage.jsx';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 function App() {
 
@@ -37,6 +41,8 @@ function App() {
 
   return (
     (accessToken!= null) ? (
+
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Router>
         <Routes>
           <Route path="*" element={<Navigate to={"/tab"} />}></Route>
@@ -69,11 +75,14 @@ function App() {
 
 
           <>
-            <h1>Hello World Admin</h1>
+          <CCQPlusAppBar/>
+            <AdminPage accessToken={accessToken} userData={userData}/>
           </>
           }/>
         </Routes>
+        
       </Router>
+      </LocalizationProvider>
     ) : null
   );
 }

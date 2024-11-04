@@ -61,7 +61,7 @@ function CompanySelectorPage({accessToken, userData} ) {
                     <DialogTitle>Sign Into the {selectedCompany} CCQ</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-slide-description">
-                            Confirm signing into the {selectedCompany} CCQ as {userData.username}({userData.email}).
+                            Confirm signing into the {selectedCompany} CCQ as {userData?.username ?? "loading"}({userData?.email ?? "loading"}).
                             <br />
                             False Logs are subject to the USMA Honor Code
                         </DialogContentText>
