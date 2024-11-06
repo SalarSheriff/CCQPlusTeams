@@ -260,22 +260,47 @@ const regiments = [
 
 
 
+// async function loginAndGetTokenWITHEXTRA() {
+//     try {
+//         const credential = new TeamsUserCredential({
+//             clientId: "961299f6-7113-4aa5-8949-4356fbd73aca",
+//             initiateLoginEndpoint: "https://localhost:5300/auth-start.html" // Replace with your Teams app's login endpoint
+//         });
+//         const scopes = ["https://graph.microsoft.com/.default"];
+
+
+//         await credential.login(scopes);
+//         // Acquire token silently using Teams SSO
+//         const token = await credential.getToken(scopes);
+//         console.log("Access token acquired:", token.token);
+//         return token.token;
+    
+//     } catch (error) {
+//         console.error("Authentication error:", error);
+//     }
+// }
+
+
 async function loginAndGetToken() {
     try {
         const credential = new TeamsUserCredential({
             clientId: "961299f6-7113-4aa5-8949-4356fbd73aca",
-            initiateLoginEndpoint: "https://<YOUR_DOMAIN>/auth-start.html" // Replace with your Teams app's login endpoint
+            initiateLoginEndpoint: "https://<MYSITE>/auth-start.html" // Replace with your Teams app's login endpoint
         });
         const scopes = ["https://graph.microsoft.com/.default"];
 
+
+        
         // Acquire token silently using Teams SSO
         const token = await credential.getToken(scopes);
-        return token.token;
         console.log("Access token acquired:", token.token);
+        return token.token;
+    
     } catch (error) {
         console.error("Authentication error:", error);
     }
 }
+
 
 // Function to get user data from Microsoft Graph API
 async function getUserDataFromGraph(accessToken) {
